@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Pretendard Variable", Pretendard, system-ui, sans-serif;
+  --font-hand: "Gaegu", "Gowun Dodum", cursive;
+  --font-display: "Gowun Dodum", "Pretendard Variable", sans-serif;
+
+  --color-ink-950: #0d0b16;
+  --color-ink-900: #14111f;
+  --color-ink-800: #1d1930;
+  --color-ink-700: #2a2443;
+  --color-ink-500: #6b6390;
+  --color-ink-300: #b8b2d6;
+  --color-ink-100: #ece9fb;
+
+  --color-glow-violet: #a78bfa;
+  --color-glow-pink: #f9a8d4;
+  --color-glow-amber: #fcd34d;
+
+  --shadow-note: 0 1px 1px rgb(0 0 0 / 0.08), 0 6px 12px -2px rgb(0 0 0 / 0.25), 0 18px 28px -12px rgb(0 0 0 / 0.35);
+  --shadow-note-lift: 0 2px 2px rgb(0 0 0 / 0.08), 0 18px 30px -6px rgb(0 0 0 / 0.35), 0 40px 60px -20px rgb(0 0 0 / 0.45);
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+  body {
+    @apply bg-ink-950 font-sans text-ink-100 antialiased;
+  }
+  ::selection {
+    background: rgb(167 139 250 / 0.35);
+  }
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition
+    duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-glow-violet/70
+    disabled:cursor-not-allowed disabled:opacity-40;
+}
+
+@layer components {
+  /* 배경: 은은한 오로라 그라데이션 */
+  .aurora {
+    background:
+      radial-gradient(60rem 40rem at 10% -10%, rgb(167 139 250 / 0.22), transparent 60%),
+      radial-gradient(50rem 35rem at 110% 10%, rgb(249 168 212 / 0.16), transparent 60%),
+      radial-gradient(40rem 30rem at 50% 120%, rgb(252 211 77 / 0.10), transparent 60%),
+      var(--color-ink-950);
+  }
+
+  .glass {
+    @apply border border-white/10 bg-white/[0.04] backdrop-blur-xl;
+  }
+
+  .btn-primary {
+    @apply btn bg-linear-to-r from-glow-violet to-glow-pink text-ink-950 shadow-lg shadow-glow-violet/20
+      hover:brightness-110 hover:shadow-glow-violet/40 active:scale-[0.98];
+  }
+  .btn-ghost {
+    @apply btn border border-white/10 bg-white/5 text-ink-100 hover:bg-white/10;
+  }
+
+  .field {
+    @apply w-full rounded-xl border border-white/10 bg-ink-900/70 px-4 py-3 text-sm text-ink-100
+      placeholder:text-ink-500 transition focus:border-glow-violet/60 focus:outline-none focus:ring-2
+      focus:ring-glow-violet/25;
+  }
+
+  /* 코르크 질감의 벽 */
+  .wall {
+    background-color: #c9a27a;
+    background-image:
+      radial-gradient(rgb(255 255 255 / 0.10) 1px, transparent 1.5px),
+      radial-gradient(rgb(90 55 25 / 0.22) 1px, transparent 1.5px),
+      radial-gradient(120% 90% at 50% 0%, #d8b48c 0%, #b88a5e 100%);
+    background-size: 14px 14px, 22px 22px, 100% 100%;
+    background-position: 0 0, 7px 11px, 0 0;
+    box-shadow:
+      inset 0 0 0 10px #6b4a2f,
+      inset 0 0 0 12px #4a321f,
+      inset 0 10px 40px rgb(0 0 0 / 0.35);
+  }
+
+  /* 포스트잇 상단의 반투명 테이프 */
+  .tape {
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.55), rgb(255 255 255 / 0.30));
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
+    clip-path: polygon(3% 0, 97% 4%, 100% 100%, 0 96%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
