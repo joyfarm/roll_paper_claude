@@ -54,6 +54,25 @@ function AuthPanel({ onBack }) {
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
 
+  const handleKakaoLogin = async () => {
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'kakao',
+        options: {
+          redirectTo: window.location.origin,
+        },
+      });
+      if (error) {
+        toast(error.message);
+        setBusy(false);
+      }
+    } catch {
+      toast('카카오 로그인 연결 중 오류가 발생했어요');
+      setBusy(false);
+    }
+  };
+
   const submit = async (e) => {
     e.preventDefault();
     setBusy(true);
@@ -99,7 +118,7 @@ function AuthPanel({ onBack }) {
   }
 
   return (
-    <form onSubmit={submit} className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       {onBack && (
         <button
           type="button"
@@ -109,42 +128,64 @@ function AuthPanel({ onBack }) {
           ← 로그인 없이 바로 보드 만들기
         </button>
       )}
-      <div className="grid grid-cols-2 rounded-xl bg-white/5 p-1 text-sm">
-        {[
-          ['signin', '로그인'],
-          ['signup', '회원가입'],
-        ].map(([key, label]) => (
-          <button
-            key={key}
-            type="button"
-            id={`tab-${key}`}
-            onClick={() => setMode(key)}
-            className={`relative rounded-lg py-2 font-semibold transition ${mode === key ? 'text-ink-950' : 'text-ink-300 hover:text-white'}`}
-          >
-            {mode === key && (
-              <motion.span layoutId="auth-tab" className="absolute inset-0 rounded-lg bg-ink-100" transition={{ type: 'spring', stiffness: 400, damping: 32 }} />
-            )}
-            <span className="relative">{label}</span>
-          </button>
-        ))}
-      </div>
-      <p className="text-sm text-ink-300">로그인하면 여러 기기에서 내가 만든 롤링페이퍼를 계속 관리할 수 있어요.</p>
-      <input id="auth-email" type="email" required className="field" placeholder="이메일" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
-      <input
-        id="auth-password"
-        type="password"
-        required
-        minLength={6}
-        className="field"
-        placeholder="비밀번호 (6자 이상)"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
-      />
-      <button type="submit" className="btn-primary py-3" disabled={busy} id="auth-submit">
-        {busy ? '잠시만요…' : mode === 'signin' ? '로그인' : '가입하고 시작하기'}
+
+      {/* 카카오 간편 로그인 버튼 */}
+      <button
+        type="button"
+        onClick={handleKakaoLogin}
+        disabled={busy}
+        id="btn-kakao-login"
+        className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-[#FEE500] py-3 text-sm font-bold text-[#191919] shadow-md transition hover:bg-[#FDD835] active:scale-[0.98] disabled:opacity-50"
+      >
+        <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
+          <path d="M12 3C6.477 3 2 6.477 2 10.772c0 2.76 1.838 5.178 4.622 6.516-.204.757-.738 2.748-.847 3.176-.135.534.195.526.41.383.17-.113 2.684-1.823 3.766-2.56.666.096 1.349.146 2.049.146 5.523 0 10-3.477 10-7.772S17.523 3 12 3z" />
+        </svg>
+        카카오로 3초 만에 시작하기
       </button>
-    </form>
+
+      <div className="flex items-center gap-3 text-xs text-ink-500">
+        <span className="h-px flex-1 bg-white/10" />
+        <span>또는 이메일로 계속하기</span>
+        <span className="h-px flex-1 bg-white/10" />
+      </div>
+
+      <form onSubmit={submit} className="flex flex-col gap-4">
+        <div className="grid grid-cols-2 rounded-xl bg-white/5 p-1 text-sm">
+          {[
+            ['signin', '로그인'],
+            ['signup', '회원가입'],
+          ].map(([key, label]) => (
+            <button
+              key={key}
+              type="button"
+              id={`tab-${key}`}
+              onClick={() => setMode(key)}
+              className={`relative rounded-lg py-2 font-semibold transition ${mode === key ? 'text-ink-950' : 'text-ink-300 hover:text-white'}`}
+            >
+              {mode === key && (
+                <motion.span layoutId="auth-tab" className="absolute inset-0 rounded-lg bg-ink-100" transition={{ type: 'spring', stiffness: 400, damping: 32 }} />
+              )}
+              <span className="relative">{label}</span>
+            </button>
+          ))}
+        </div>
+        <input id="auth-email" type="email" required className="field" placeholder="이메일" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+        <input
+          id="auth-password"
+          type="password"
+          required
+          minLength={6}
+          className="field"
+          placeholder="비밀번호 (6자 이상)"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
+        />
+        <button type="submit" className="btn-primary py-3" disabled={busy} id="auth-submit">
+          {busy ? '잠시만요…' : mode === 'signin' ? '로그인' : '가입하고 시작하기'}
+        </button>
+      </form>
+    </div>
   );
 }
 
@@ -155,6 +196,20 @@ function CreateBoard({ user, isMember, onSwitchToAuth }) {
   const [description, setDescription] = useState('');
   const [busy, setBusy] = useState(false);
   const [boards, setBoards] = useState(null);
+
+  const handleKakaoLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'kakao',
+        options: {
+          redirectTo: window.location.origin,
+        },
+      });
+      if (error) toast(error.message);
+    } catch {
+      toast('카카오 로그인 연결 중 오류가 발생했어요');
+    }
+  };
 
   useEffect(() => {
     if (!user?.id) {
@@ -207,6 +262,10 @@ function CreateBoard({ user, isMember, onSwitchToAuth }) {
     toast('보드를 만들지 못했어요');
   };
 
+  const displayName =
+    user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email || '회원';
+  const avatarUrl = user?.user_metadata?.avatar_url;
+
   return (
     <div className="flex flex-col gap-6">
       <form onSubmit={create} className="flex flex-col gap-3">
@@ -214,7 +273,14 @@ function CreateBoard({ user, isMember, onSwitchToAuth }) {
           <h2 className="font-display text-xl text-white">새 롤링페이퍼 만들기</h2>
           {isMember ? (
             <div className="flex items-center gap-2">
-              <span className="max-w-[120px] truncate text-xs text-ink-300">{user.email}</span>
+              {avatarUrl && (
+                <img
+                  src={avatarUrl}
+                  alt=""
+                  className="h-5 w-5 rounded-full object-cover border border-white/20"
+                />
+              )}
+              <span className="max-w-[120px] truncate text-xs text-ink-300">{displayName}</span>
               <button
                 type="button"
                 className="text-xs text-ink-500 hover:text-ink-300"
@@ -237,9 +303,25 @@ function CreateBoard({ user, isMember, onSwitchToAuth }) {
         </div>
 
         {!isMember && (
-          <div className="flex items-center gap-2 rounded-lg border border-white/5 bg-white/[0.04] px-3 py-1.5 text-xs text-ink-300">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            <span>로그인 없이 바로 보드를 만들어 링크를 공유할 수 있어요.</span>
+          <div className="flex items-center justify-between gap-2 rounded-xl border border-white/5 bg-white/[0.04] p-3 text-xs text-ink-300">
+            <div className="flex flex-col gap-0.5">
+              <span className="flex items-center gap-1.5 font-medium text-emerald-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                로그인 없이 바로 보드 만들기 가능
+              </span>
+              <span className="text-[11px] text-ink-500">계정을 연결하면 다른 기기에서도 보드를 관리할 수 있어요.</span>
+            </div>
+            <button
+              type="button"
+              onClick={handleKakaoLogin}
+              className="flex shrink-0 items-center gap-1.5 rounded-lg bg-[#FEE500] px-3 py-1.5 text-xs font-bold text-[#191919] transition hover:bg-[#FDD835]"
+              id="btn-quick-kakao"
+            >
+              <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
+                <path d="M12 3C6.477 3 2 6.477 2 10.772c0 2.76 1.838 5.178 4.622 6.516-.204.757-.738 2.748-.847 3.176-.135.534.195.526.41.383.17-.113 2.684-1.823 3.766-2.56.666.096 1.349.146 2.049.146 5.523 0 10-3.477 10-7.772S17.523 3 12 3z" />
+              </svg>
+              카카오 로그인
+            </button>
           </div>
         )}
 
